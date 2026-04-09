@@ -247,6 +247,35 @@ async function refreshData() {
     }
 }
 
+// Añadir item al presupuesto
+function addPresupuestoItem() {
+    const container = document.getElementById('presupuesto-items-container');
+    const itemHtml = `
+        <div class="presupuesto-item grid grid-cols-12 gap-2 items-end bg-gray-50 p-3 rounded-lg border border-gray-200">
+            <div class="col-span-5">
+                <label class="block text-xs text-gray-500 mb-1">Descripción</label>
+                <input type="text" class="item-desc w-full border border-gray-300 rounded px-2 py-1 text-sm outline-none" required>
+            </div>
+            <div class="col-span-2">
+                <label class="block text-xs text-gray-500 mb-1">Cant.</label>
+                <input type="number" step="0.01" value="1" class="item-cant w-full border border-gray-300 rounded px-2 py-1 text-sm outline-none" required>
+            </div>
+            <div class="col-span-2">
+                <label class="block text-xs text-gray-500 mb-1">Precio (Sin IVA)</label>
+                <input type="number" step="0.01" value="0" class="item-precio w-full border border-gray-300 rounded px-2 py-1 text-sm outline-none" required>
+            </div>
+            <div class="col-span-2">
+                <label class="block text-xs text-gray-500 mb-1">IVA %</label>
+                <input type="number" step="0.01" value="21" class="item-iva w-full border border-gray-300 rounded px-2 py-1 text-sm outline-none" required>
+            </div>
+            <div class="col-span-1 text-right">
+                <button type="button" onclick="this.closest('.presupuesto-item').remove()" class="text-red-500 hover:text-red-700 p-1"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', itemHtml);
+}
+
 // Configurar Formularios
 function wireForm(formId, endpoint, modalId) {
     const form = document.getElementById(formId);
@@ -254,7 +283,22 @@ function wireForm(formId, endpoint, modalId) {
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
         try {
-            await api(endpoint, { method: "POST", body: JSON.stringify(getFormData(form)) });
+            let bodyData;
+            if (formId === "form-presupuestos") {
+                const data = getFormData(form);
+                data.items = Array.from(form.querySelectorAll('.presupuesto-item')).map(row => ({
+                    descripcion: row.querySelector('.item-desc').value,
+                    cantidad: Number(row.querySelector('.item-cant').value),
+                    precio_unitario: Number(row.querySelector('.item-precio').value),
+                    iva_porcentaje: Number(row.querySelector('.item-iva').value)
+                }));
+                if(data.items.length === 0) throw new Error("Debes añadir al menos un concepto al presupuesto.");
+                bodyData = JSON.stringify(data);
+            } else {
+                bodyData = JSON.stringify(getFormData(form));
+            }
+            
+            await api(endpoint, { method: "POST", body: bodyData });
             if(modalId) closeModal(modalId);
             showToast("Guardado correctamente");
             refreshData();

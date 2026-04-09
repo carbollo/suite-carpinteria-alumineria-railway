@@ -84,6 +84,8 @@ class Presupuesto(Base):
     total_mano_obra = Column(Float, default=0.0)
     total_transporte = Column(Float, default=0.0)
     margen_porcentaje = Column(Float, default=0.0)
+    subtotal = Column(Float, default=0.0)
+    total_iva = Column(Float, default=0.0)
     total_final = Column(Float, default=0.0)
     
     firma_digital = Column(Boolean, default=False)
@@ -101,6 +103,7 @@ class PresupuestoItem(Base):
     descripcion = Column(String(200), nullable=False)
     cantidad = Column(Float, default=1.0)
     precio_unitario = Column(Float, default=0.0)
+    iva_porcentaje = Column(Float, default=21.0)
     subtotal = Column(Float, default=0.0)
 
     presupuesto = relationship("Presupuesto", back_populates="items")

@@ -29,6 +29,16 @@ try:
                 conn.execute(text("ALTER TABLE clientes ADD COLUMN nif VARCHAR(50)"))
             if "sitio_web" not in columns:
                 conn.execute(text("ALTER TABLE clientes ADD COLUMN sitio_web VARCHAR(120)"))
+        if "presupuestos" in inspector.get_table_names():
+            columns = [c["name"] for c in inspector.get_columns("presupuestos")]
+            if "subtotal" not in columns:
+                conn.execute(text("ALTER TABLE presupuestos ADD COLUMN subtotal FLOAT DEFAULT 0.0"))
+            if "total_iva" not in columns:
+                conn.execute(text("ALTER TABLE presupuestos ADD COLUMN total_iva FLOAT DEFAULT 0.0"))
+        if "presupuesto_items" in inspector.get_table_names():
+            columns = [c["name"] for c in inspector.get_columns("presupuesto_items")]
+            if "iva_porcentaje" not in columns:
+                conn.execute(text("ALTER TABLE presupuesto_items ADD COLUMN iva_porcentaje FLOAT DEFAULT 21.0"))
         
         conn.commit()
 except Exception as e:
@@ -222,18 +232,14 @@ def crear_presupuesto(item: schemas.PresupuestoCreate, db: Session = Depends(get
     if not db.get(models.Proyecto, item.proyecto_id):
         raise HTTPException(status_code=404, detail="Proyecto no encontrado")
     
-    total_base = item.total_materiales + item.total_mano_obra + item.total_transporte
-    total_final = total_base + (total_base * (item.margen_porcentaje / 100))
+    subtotal = 0.0
+    total_iva = 0.0
     
     nuevo_presupuesto = models.Presupuesto(
         proyecto_id=item.proyecto_id,
         version=item.version,
         estado=item.estado,
-        total_materiales=item.total_materiales,
-        total_mano_obra=item.total_mano_obra,
-        total_transporte=item.total_transporte,
         margen_porcentaje=item.margen_porcentaje,
-        total_final=round(total_final, 2),
         firma_digital=item.firma_digital
     )
     db.add(nuevo_presupuesto)
@@ -241,16 +247,31 @@ def crear_presupuesto(item: schemas.PresupuestoCreate, db: Session = Depends(get
     db.refresh(nuevo_presupuesto)
     
     for p_item in item.items:
-        subtotal = p_item.cantidad * p_item.precio_unitario
+        item_subtotal = p_item.cantidad * p_item.precio_unitario
+        subtotal += item_subtotal
+        
+        item_base = item_subtotal * (1 + (item.margen_porcentaje / 100))
+        item_iva = item_base * (p_item.iva_porcentaje / 100)
+        total_iva += item_iva
+        
         nuevo_item = models.PresupuestoItem(
             presupuesto_id=nuevo_presupuesto.id,
             material_id=p_item.material_id,
             descripcion=p_item.descripcion,
             cantidad=p_item.cantidad,
             precio_unitario=p_item.precio_unitario,
-            subtotal=round(subtotal, 2)
+            iva_porcentaje=p_item.iva_porcentaje,
+            subtotal=round(item_subtotal, 2)
         )
         db.add(nuevo_item)
+        
+    margen_total = subtotal * (item.margen_porcentaje / 100)
+    total_final = subtotal + margen_total + total_iva
+    
+    nuevo_presupuesto.subtotal = round(subtotal, 2)
+    nuevo_presupuesto.total_iva = round(total_iva, 2)
+    nuevo_presupuesto.total_final = round(total_final, 2)
+    
     db.commit()
     db.refresh(nuevo_presupuesto)
     return nuevo_presupuesto
@@ -317,28 +338,51 @@ def generar_pdf_presupuesto(presupuesto_id: int, db: Session = Depends(get_db)):
     pdf.ln(10)
     
     # Desglose
-    pdf.set_font("helvetica", "B", 14)
-    pdf.cell(0, 10, "Desglose Economico:", ln=True)
-    pdf.set_font("helvetica", "", 12)
+    pdf.set_font("helvetica", "B", 12)
+    pdf.cell(0, 10, "Conceptos:", ln=True)
     
-    pdf.cell(100, 10, "Materiales", border=1)
-    pdf.cell(50, 10, f"${presupuesto.total_materiales:.2f}", border=1, ln=True, align="R")
-    pdf.cell(100, 10, "Mano de Obra", border=1)
-    pdf.cell(50, 10, f"${presupuesto.total_mano_obra:.2f}", border=1, ln=True, align="R")
-    pdf.cell(100, 10, "Transporte", border=1)
-    pdf.cell(50, 10, f"${presupuesto.total_transporte:.2f}", border=1, ln=True, align="R")
+    pdf.set_font("helvetica", "B", 10)
+    pdf.cell(80, 8, "Descripcion", border=1)
+    pdf.cell(20, 8, "Cant.", border=1, align="C")
+    pdf.cell(30, 8, "Precio U.", border=1, align="C")
+    pdf.cell(20, 8, "IVA %", border=1, align="C")
+    pdf.cell(40, 8, "Subtotal", border=1, align="C")
+    pdf.ln()
     
-    subtotal = presupuesto.total_materiales + presupuesto.total_mano_obra + presupuesto.total_transporte
-    pdf.cell(100, 10, "Subtotal", border=1)
-    pdf.cell(50, 10, f"${subtotal:.2f}", border=1, ln=True, align="R")
+    pdf.set_font("helvetica", "", 10)
+    for item in presupuesto.items:
+        pdf.cell(80, 8, item.descripcion[:45], border=1)
+        pdf.cell(20, 8, str(item.cantidad), border=1, align="C")
+        pdf.cell(30, 8, f"${item.precio_unitario:.2f}", border=1, align="R")
+        pdf.cell(20, 8, f"{item.iva_porcentaje}%", border=1, align="C")
+        pdf.cell(40, 8, f"${item.subtotal:.2f}", border=1, align="R")
+        pdf.ln()
+        
+    pdf.ln(5)
     
-    pdf.cell(100, 10, f"Margen ({presupuesto.margen_porcentaje}%)", border=1)
-    margen_val = subtotal * (presupuesto.margen_porcentaje / 100)
-    pdf.cell(50, 10, f"${margen_val:.2f}", border=1, ln=True, align="R")
+    pdf.set_font("helvetica", "B", 10)
+    pdf.cell(130, 8, "", border=0)
+    pdf.cell(20, 8, "Subtotal:", border=0, align="R")
+    pdf.cell(40, 8, f"${presupuesto.subtotal:.2f}", border=1, ln=True, align="R")
+    
+    margen_val = presupuesto.subtotal * (presupuesto.margen_porcentaje / 100)
+    pdf.cell(130, 8, "", border=0)
+    pdf.cell(20, 8, f"Margen ({presupuesto.margen_porcentaje}%):", border=0, align="R")
+    pdf.cell(40, 8, f"${margen_val:.2f}", border=1, ln=True, align="R")
+    
+    base_imponible = presupuesto.subtotal + margen_val
+    pdf.cell(130, 8, "", border=0)
+    pdf.cell(20, 8, "Base Imp.:", border=0, align="R")
+    pdf.cell(40, 8, f"${base_imponible:.2f}", border=1, ln=True, align="R")
+    
+    pdf.cell(130, 8, "", border=0)
+    pdf.cell(20, 8, "Total IVA:", border=0, align="R")
+    pdf.cell(40, 8, f"${presupuesto.total_iva:.2f}", border=1, ln=True, align="R")
     
     pdf.set_font("helvetica", "B", 12)
-    pdf.cell(100, 10, "TOTAL FINAL", border=1)
-    pdf.cell(50, 10, f"${presupuesto.total_final:.2f}", border=1, ln=True, align="R")
+    pdf.cell(130, 10, "", border=0)
+    pdf.cell(20, 10, "TOTAL:", border=0, align="R")
+    pdf.cell(40, 10, f"${presupuesto.total_final:.2f}", border=1, ln=True, align="R")
     
     pdf.ln(20)
     pdf.set_font("helvetica", "I", 10)

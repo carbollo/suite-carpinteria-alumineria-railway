@@ -90,6 +90,7 @@ class PresupuestoItemBase(BaseModel):
     descripcion: str
     cantidad: float = 1.0
     precio_unitario: float = 0.0
+    iva_porcentaje: float = 21.0
 
 class PresupuestoItemCreate(PresupuestoItemBase):
     pass
@@ -119,6 +120,8 @@ class PresupuestoCreate(PresupuestoBase):
 
 class PresupuestoOut(PresupuestoBase):
     id: int
+    subtotal: float
+    total_iva: float
     total_final: float
     fecha_creacion: datetime
     items: List[PresupuestoItemOut] = []
