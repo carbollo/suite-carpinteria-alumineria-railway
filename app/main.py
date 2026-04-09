@@ -286,7 +286,7 @@ def generar_pdf_presupuesto(presupuesto_id: int, db: Session = Depends(get_db)):
 
     pdf_bytes = pdf.output()
     
-    return Response(content=pdf_bytes, media_type="application/pdf", headers={
+    return Response(content=bytes(pdf_bytes), media_type="application/pdf", headers={
         "Content-Disposition": f"attachment; filename=presupuesto_{presupuesto_id}.pdf"
     })
 
