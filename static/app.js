@@ -214,7 +214,9 @@ function wireForm(formId, endpoint, modalId) {
 document.addEventListener("DOMContentLoaded", () => {
     wireForm("form-clientes", "/api/clientes", "modal-cliente");
     wireForm("form-proyectos", "/api/proyectos", "modal-proyecto");
-    // Añadir más wireForm según se agreguen modales...
+    wireForm("form-presupuestos", "/api/presupuestos", "modal-presupuesto");
+    wireForm("form-ordenes", "/api/ordenes", "modal-orden");
+    wireForm("form-materiales", "/api/materiales", "modal-material");
 
     // Inicializar menú
     const firstNav = document.querySelector(".nav-link");
