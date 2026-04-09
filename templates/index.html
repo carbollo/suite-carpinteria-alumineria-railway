@@ -3,82 +3,199 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Suite Taller - Carpinteria y Alumineria</title>
+    <title>Suite Taller - Carpinteria y Alumineria Pro</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
   <body>
-    <main>
-      <h1>Suite de Gestion - Carpinteria y Alumineria</h1>
-      <p>Clientes, proyectos, presupuestos y tareas en una sola app.</p>
+    <header>
+      <h1>Suite de Gestion - Carpinteria y Alumineria Pro</h1>
+    </header>
+    <div class="layout">
+      <nav class="sidebar">
+        <ul>
+          <li><a href="#" onclick="showModule('dashboard')">Dashboard</a></li>
+          <li><a href="#" onclick="showModule('clientes')">Clientes y Obras</a></li>
+          <li><a href="#" onclick="showModule('presupuestos')">Presupuestos y Ofertas</a></li>
+          <li><a href="#" onclick="showModule('produccion')">Pedidos y Produccion</a></li>
+          <li><a href="#" onclick="showModule('almacen')">Materiales y Almacen</a></li>
+          <li><a href="#" onclick="showModule('instalacion')">Instalacion y Logistica</a></li>
+          <li><a href="#" onclick="showModule('facturacion')">Facturacion y Cobros</a></li>
+          <li><a href="#" onclick="showModule('proveedores')">Proveedores</a></li>
+          <li><a href="#" onclick="showModule('incidencias')">Incidencias</a></li>
+        </ul>
+      </nav>
+      
+      <main id="main-content">
+        <!-- Dashboard -->
+        <section id="module-dashboard" class="module active">
+          <h2>Dashboard</h2>
+          <p>Bienvenido a la suite completa. Selecciona un modulo en el menu lateral.</p>
+          <div class="grid">
+            <article><h3>Clientes</h3><ul id="list-clientes"></ul></article>
+            <article><h3>Proyectos</h3><ul id="list-proyectos"></ul></article>
+            <article><h3>Presupuestos</h3><ul id="list-presupuestos"></ul></article>
+            <article><h3>Ordenes de Produccion</h3><ul id="list-ordenes"></ul></article>
+          </div>
+        </section>
 
-      <section>
-        <h2>Nuevo cliente</h2>
-        <form id="cliente-form">
-          <input name="nombre" placeholder="Nombre" required />
-          <input name="telefono" placeholder="Telefono" />
-          <input name="email" placeholder="Email" />
-          <input name="direccion" placeholder="Direccion" />
-          <button type="submit">Guardar cliente</button>
-        </form>
-      </section>
+        <!-- Clientes y Obras -->
+        <section id="module-clientes" class="module">
+          <h2>Clientes y Obras</h2>
+          <div class="grid">
+            <article>
+              <h3>Nuevo Cliente</h3>
+              <form id="form-clientes">
+                <input name="nombre" placeholder="Nombre" required />
+                <input name="telefono" placeholder="Telefono" />
+                <input name="email" placeholder="Email" />
+                <input name="direccion" placeholder="Direccion" />
+                <select name="clasificacion">
+                  <option value="particular">Particular</option>
+                  <option value="promotor">Promotor</option>
+                  <option value="constructor">Constructor</option>
+                  <option value="administracion">Administracion</option>
+                </select>
+                <button type="submit">Guardar Cliente</button>
+              </form>
+            </article>
+            <article>
+              <h3>Nuevo Proyecto / Obra</h3>
+              <form id="form-proyectos">
+                <input name="nombre" placeholder="Nombre del proyecto" required />
+                <select name="tipo">
+                  <option value="carpinteria">Carpinteria</option>
+                  <option value="alumineria">Alumineria</option>
+                </select>
+                <input name="direccion_obra" placeholder="Direccion de la obra" />
+                <input name="cliente_id" type="number" placeholder="ID Cliente" required />
+                <button type="submit">Guardar Proyecto</button>
+              </form>
+            </article>
+          </div>
+        </section>
 
-      <section>
-        <h2>Nuevo proyecto</h2>
-        <form id="proyecto-form">
-          <input name="nombre" placeholder="Nombre del proyecto" required />
-          <select name="tipo">
-            <option value="carpinteria">Carpinteria</option>
-            <option value="alumineria">Alumineria</option>
-          </select>
-          <input name="estado" placeholder="Estado (en_proceso, entregado...)" />
-          <input name="descripcion" placeholder="Descripcion" />
-          <input name="cliente_id" type="number" placeholder="ID cliente" required />
-          <button type="submit">Guardar proyecto</button>
-        </form>
-      </section>
+        <!-- Presupuestos -->
+        <section id="module-presupuestos" class="module">
+          <h2>Presupuestos y Ofertas</h2>
+          <article>
+            <h3>Nuevo Presupuesto</h3>
+            <form id="form-presupuestos">
+              <input name="proyecto_id" type="number" placeholder="ID Proyecto" required />
+              <input name="total_materiales" type="number" step="0.01" placeholder="Total Materiales" />
+              <input name="total_mano_obra" type="number" step="0.01" placeholder="Total Mano de Obra" />
+              <input name="total_transporte" type="number" step="0.01" placeholder="Total Transporte" />
+              <input name="margen_porcentaje" type="number" step="0.01" placeholder="Margen (%)" />
+              <button type="submit">Calcular y Guardar Presupuesto</button>
+            </form>
+          </article>
+        </section>
 
-      <section>
-        <h2>Nuevo presupuesto</h2>
-        <form id="presupuesto-form">
-          <input name="proyecto_id" type="number" placeholder="ID proyecto" required />
-          <input name="material" type="number" step="0.01" placeholder="Material" />
-          <input name="mano_obra" type="number" step="0.01" placeholder="Mano de obra" />
-          <input name="transporte" type="number" step="0.01" placeholder="Transporte" />
-          <input name="margen" type="number" step="0.01" placeholder="Margen (%)" />
-          <button type="submit">Calcular y guardar</button>
-        </form>
-      </section>
+        <!-- Produccion -->
+        <section id="module-produccion" class="module">
+          <h2>Pedidos y Produccion</h2>
+          <div class="grid">
+            <article>
+              <h3>Nueva Orden de Produccion</h3>
+              <form id="form-ordenes">
+                <input name="proyecto_id" type="number" placeholder="ID Proyecto" required />
+                <input name="presupuesto_id" type="number" placeholder="ID Presupuesto" />
+                <select name="prioridad">
+                  <option value="normal">Normal</option>
+                  <option value="alta">Alta</option>
+                  <option value="urgente">Urgente</option>
+                </select>
+                <button type="submit">Crear Orden</button>
+              </form>
+            </article>
+            <article>
+              <h3>Nueva Tarea</h3>
+              <form id="form-tareas">
+                <input name="orden_id" type="number" placeholder="ID Orden" required />
+                <input name="descripcion" placeholder="Descripcion de la tarea" required />
+                <button type="submit">Guardar Tarea</button>
+              </form>
+            </article>
+          </div>
+        </section>
 
-      <section>
-        <h2>Nueva tarea</h2>
-        <form id="tarea-form">
-          <input name="proyecto_id" type="number" placeholder="ID proyecto" required />
-          <input name="titulo" placeholder="Titulo de la tarea" required />
-          <input name="estado" placeholder="Estado (pendiente, en_progreso...)" />
-          <input name="responsable" placeholder="Responsable" />
-          <button type="submit">Guardar tarea</button>
-        </form>
-      </section>
+        <!-- Almacen -->
+        <section id="module-almacen" class="module">
+          <h2>Materiales y Almacen</h2>
+          <article>
+            <h3>Nuevo Material</h3>
+            <form id="form-materiales">
+              <select name="tipo">
+                <option value="perfil">Perfil</option>
+                <option value="herraje">Herraje</option>
+                <option value="vidrio">Vidrio</option>
+              </select>
+              <input name="referencia" placeholder="Referencia" required />
+              <input name="descripcion" placeholder="Descripcion" />
+              <input name="precio_unitario" type="number" step="0.01" placeholder="Precio Unitario" />
+              <input name="stock_actual" type="number" step="0.01" placeholder="Stock Actual" />
+              <button type="submit">Guardar Material</button>
+            </form>
+          </article>
+        </section>
 
-      <section class="grid">
-        <article>
-          <h3>Clientes</h3>
-          <ul id="clientes"></ul>
-        </article>
-        <article>
-          <h3>Proyectos</h3>
-          <ul id="proyectos"></ul>
-        </article>
-        <article>
-          <h3>Presupuestos</h3>
-          <ul id="presupuestos"></ul>
-        </article>
-        <article>
-          <h3>Tareas</h3>
-          <ul id="tareas"></ul>
-        </article>
-      </section>
-    </main>
+        <!-- Instalacion -->
+        <section id="module-instalacion" class="module">
+          <h2>Instalacion y Logistica</h2>
+          <article>
+            <h3>Programar Instalacion</h3>
+            <form id="form-instalaciones">
+              <input name="proyecto_id" type="number" placeholder="ID Proyecto" required />
+              <input name="vehiculo" placeholder="Vehiculo asignado" />
+              <input name="notas" placeholder="Notas" />
+              <button type="submit">Programar</button>
+            </form>
+          </article>
+        </section>
+
+        <!-- Facturacion -->
+        <section id="module-facturacion" class="module">
+          <h2>Facturacion y Cobros</h2>
+          <article>
+            <h3>Emitir Factura</h3>
+            <form id="form-facturas">
+              <input name="cliente_id" type="number" placeholder="ID Cliente" required />
+              <input name="proyecto_id" type="number" placeholder="ID Proyecto" />
+              <input name="monto" type="number" step="0.01" placeholder="Monto Total" required />
+              <button type="submit">Emitir Factura</button>
+            </form>
+          </article>
+        </section>
+
+        <!-- Proveedores -->
+        <section id="module-proveedores" class="module">
+          <h2>Proveedores</h2>
+          <article>
+            <h3>Nuevo Proveedor</h3>
+            <form id="form-proveedores">
+              <input name="nombre" placeholder="Nombre" required />
+              <input name="contacto" placeholder="Contacto" />
+              <input name="telefono" placeholder="Telefono" />
+              <input name="email" placeholder="Email" />
+              <button type="submit">Guardar Proveedor</button>
+            </form>
+          </article>
+        </section>
+
+        <!-- Incidencias -->
+        <section id="module-incidencias" class="module">
+          <h2>Incidencias</h2>
+          <article>
+            <h3>Reportar Incidencia</h3>
+            <form id="form-incidencias">
+              <input name="proyecto_id" type="number" placeholder="ID Proyecto" required />
+              <input name="descripcion" placeholder="Descripcion de la incidencia" required />
+              <button type="submit">Reportar</button>
+            </form>
+          </article>
+        </section>
+
+      </main>
+    </div>
     <script src="/static/app.js"></script>
   </body>
 </html>

@@ -14,8 +14,8 @@ function getFormData(form) {
   const data = {};
   for (const [key, value] of new FormData(form).entries()) {
     if (value === "") continue;
-    if (["cliente_id", "proyecto_id"].includes(key)) data[key] = Number(value);
-    else if (["material", "mano_obra", "transporte", "margen"].includes(key)) data[key] = Number(value);
+    if (["cliente_id", "proyecto_id", "presupuesto_id", "orden_id"].includes(key)) data[key] = Number(value);
+    else if (["total_materiales", "total_mano_obra", "total_transporte", "margen_porcentaje", "precio_unitario", "stock_actual", "monto"].includes(key)) data[key] = Number(value);
     else data[key] = value;
   }
   return data;
@@ -23,6 +23,7 @@ function getFormData(form) {
 
 function renderList(id, rows, mapper) {
   const container = document.getElementById(id);
+  if (!container) return;
   container.innerHTML = "";
   for (const row of rows) {
     const li = document.createElement("li");
@@ -32,26 +33,32 @@ function renderList(id, rows, mapper) {
 }
 
 async function refresh() {
-  const [clientes, proyectos, presupuestos, tareas] = await Promise.all([
-    api("/api/clientes"),
-    api("/api/proyectos"),
-    api("/api/presupuestos"),
-    api("/api/tareas"),
-  ]);
+  try {
+    const [clientes, proyectos, presupuestos, ordenes] = await Promise.all([
+      api("/api/clientes"),
+      api("/api/proyectos"),
+      api("/api/presupuestos"),
+      api("/api/ordenes"),
+    ]);
 
-  renderList("clientes", clientes, (c) => `#${c.id} ${c.nombre}`);
-  renderList("proyectos", proyectos, (p) => `#${p.id} ${p.nombre} (${p.tipo})`);
-  renderList("presupuestos", presupuestos, (p) => `#${p.id} proyecto ${p.proyecto_id}: $${p.total}`);
-  renderList("tareas", tareas, (t) => `#${t.id} ${t.titulo} (${t.estado})`);
+    renderList("list-clientes", clientes, (c) => `#${c.id} ${c.nombre} (${c.clasificacion})`);
+    renderList("list-proyectos", proyectos, (p) => `#${p.id} ${p.nombre} - ${p.estado}`);
+    renderList("list-presupuestos", presupuestos, (p) => `#${p.id} Proyecto ${p.proyecto_id}: $${p.total_final} (${p.estado})`);
+    renderList("list-ordenes", ordenes, (o) => `#${o.id} Proyecto ${o.proyecto_id} - ${o.estado}`);
+  } catch (e) {
+    console.error("Error al cargar datos:", e);
+  }
 }
 
 function wireForm(formId, endpoint) {
-  document.getElementById(formId).addEventListener("submit", async (e) => {
+  const form = document.getElementById(formId);
+  if (!form) return;
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const form = e.target;
     try {
       await api(endpoint, { method: "POST", body: JSON.stringify(getFormData(form)) });
       form.reset();
+      alert("Guardado correctamente");
       await refresh();
     } catch (err) {
       alert(err.message);
@@ -59,8 +66,22 @@ function wireForm(formId, endpoint) {
   });
 }
 
-wireForm("cliente-form", "/api/clientes");
-wireForm("proyecto-form", "/api/proyectos");
-wireForm("presupuesto-form", "/api/presupuestos");
-wireForm("tarea-form", "/api/tareas");
+function showModule(moduleId) {
+  document.querySelectorAll(".module").forEach(m => m.classList.remove("active"));
+  document.getElementById("module-" + moduleId).classList.add("active");
+  refresh();
+}
+
+// Wire all forms
+wireForm("form-clientes", "/api/clientes");
+wireForm("form-proyectos", "/api/proyectos");
+wireForm("form-presupuestos", "/api/presupuestos");
+wireForm("form-ordenes", "/api/ordenes");
+wireForm("form-tareas", "/api/tareas");
+wireForm("form-materiales", "/api/materiales");
+wireForm("form-instalaciones", "/api/instalaciones");
+wireForm("form-facturas", "/api/facturas");
+wireForm("form-proveedores", "/api/proveedores");
+wireForm("form-incidencias", "/api/incidencias");
+
 refresh();
