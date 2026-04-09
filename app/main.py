@@ -11,7 +11,28 @@ from fpdf import FPDF
 from . import models, schemas
 from .database import Base, engine, get_db
 
-Base.metadata.create_all(bind=engine)
+# --- MIGRATION HACK FOR DEVELOPMENT ---
+# To apply new columns to existing DBs without Alembic,
+# we can try to add them dynamically if they don't exist.
+try:
+    Base.metadata.create_all(bind=engine)
+    
+    # Auto-migrate columns for SQLite/Postgres
+    from sqlalchemy import inspect, text
+    inspector = inspect(engine)
+    
+    with engine.connect() as conn:
+        # Check Cliente columns
+        if "clientes" in inspector.get_table_names():
+            columns = [c["name"] for c in inspector.get_columns("clientes")]
+            if "nif" not in columns:
+                conn.execute(text("ALTER TABLE clientes ADD COLUMN nif VARCHAR(50)"))
+            if "sitio_web" not in columns:
+                conn.execute(text("ALTER TABLE clientes ADD COLUMN sitio_web VARCHAR(120)"))
+        
+        conn.commit()
+except Exception as e:
+    print(f"Migration error: {e}")
 
 app = FastAPI(title="Suite Carpinteria y Alumineria Pro")
 
