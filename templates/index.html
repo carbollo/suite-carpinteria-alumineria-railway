@@ -1,201 +1,231 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Suite Taller - Carpinteria y Alumineria Pro</title>
-    <link rel="stylesheet" href="/static/styles.css" />
-  </head>
-  <body>
-    <header>
-      <h1>Suite de Gestion - Carpinteria y Alumineria Pro</h1>
-    </header>
-    <div class="layout">
-      <nav class="sidebar">
-        <ul>
-          <li><a href="#" onclick="showModule('dashboard')">Dashboard</a></li>
-          <li><a href="#" onclick="showModule('clientes')">Clientes y Obras</a></li>
-          <li><a href="#" onclick="showModule('presupuestos')">Presupuestos y Ofertas</a></li>
-          <li><a href="#" onclick="showModule('produccion')">Pedidos y Produccion</a></li>
-          <li><a href="#" onclick="showModule('almacen')">Materiales y Almacen</a></li>
-          <li><a href="#" onclick="showModule('instalacion')">Instalacion y Logistica</a></li>
-          <li><a href="#" onclick="showModule('facturacion')">Facturacion y Cobros</a></li>
-          <li><a href="#" onclick="showModule('proveedores')">Proveedores</a></li>
-          <li><a href="#" onclick="showModule('incidencias')">Incidencias</a></li>
-        </ul>
-      </nav>
-      
-      <main id="main-content">
-        <!-- Dashboard -->
-        <section id="module-dashboard" class="module active">
-          <h2>Dashboard</h2>
-          <p>Bienvenido a la suite completa. Selecciona un modulo en el menu lateral.</p>
-          <div class="grid">
-            <article><h3>Clientes</h3><ul id="list-clientes"></ul></article>
-            <article><h3>Proyectos</h3><ul id="list-proyectos"></ul></article>
-            <article><h3>Presupuestos</h3><ul id="list-presupuestos"></ul></article>
-            <article><h3>Ordenes de Produccion</h3><ul id="list-ordenes"></ul></article>
-          </div>
-        </section>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TallerPro - Suite de Gestión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            900: '#134e4a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased flex h-screen overflow-hidden">
+    
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col transition-all duration-300 shadow-xl z-20">
+        <div class="h-16 flex items-center px-6 bg-slate-950 text-white font-bold text-xl tracking-wider">
+            <i class="fa-solid fa-hammer mr-3 text-brand-500"></i> TallerPro
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 custom-scrollbar">
+            <ul class="space-y-1">
+                <li><a href="#" onclick="showModule('dashboard', this)" class="nav-link active flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-chart-pie w-6"></i> Dashboard</a></li>
+                <li><a href="#" onclick="showModule('clientes', this)" class="nav-link flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-users w-6"></i> Clientes y Obras</a></li>
+                <li><a href="#" onclick="showModule('presupuestos', this)" class="nav-link flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-file-invoice-dollar w-6"></i> Presupuestos</a></li>
+                <li><a href="#" onclick="showModule('produccion', this)" class="nav-link flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-industry w-6"></i> Producción</a></li>
+                <li><a href="#" onclick="showModule('almacen', this)" class="nav-link flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-boxes-stacked w-6"></i> Almacén</a></li>
+                <li><a href="#" onclick="showModule('instalacion', this)" class="nav-link flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-truck-fast w-6"></i> Instalación</a></li>
+                <li><a href="#" onclick="showModule('facturacion', this)" class="nav-link flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-money-bill-wave w-6"></i> Facturación</a></li>
+                <li><a href="#" onclick="showModule('proveedores', this)" class="nav-link flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-handshake w-6"></i> Proveedores</a></li>
+                <li><a href="#" onclick="showModule('incidencias', this)" class="nav-link flex items-center px-6 py-3 hover:bg-slate-800 hover:text-white transition-colors"><i class="fa-solid fa-triangle-exclamation w-6"></i> Incidencias</a></li>
+            </ul>
+        </nav>
+    </aside>
 
-        <!-- Clientes y Obras -->
-        <section id="module-clientes" class="module">
-          <h2>Clientes y Obras</h2>
-          <div class="grid">
-            <article>
-              <h3>Nuevo Cliente</h3>
-              <form id="form-clientes">
-                <input name="nombre" placeholder="Nombre" required />
-                <input name="telefono" placeholder="Telefono" />
-                <input name="email" placeholder="Email" />
-                <input name="direccion" placeholder="Direccion" />
-                <select name="clasificacion">
-                  <option value="particular">Particular</option>
-                  <option value="promotor">Promotor</option>
-                  <option value="constructor">Constructor</option>
-                  <option value="administracion">Administracion</option>
-                </select>
-                <button type="submit">Guardar Cliente</button>
-              </form>
-            </article>
-            <article>
-              <h3>Nuevo Proyecto / Obra</h3>
-              <form id="form-proyectos">
-                <input name="nombre" placeholder="Nombre del proyecto" required />
-                <select name="tipo">
-                  <option value="carpinteria">Carpinteria</option>
-                  <option value="alumineria">Alumineria</option>
-                </select>
-                <input name="direccion_obra" placeholder="Direccion de la obra" />
-                <input name="cliente_id" type="number" placeholder="ID Cliente" required />
-                <button type="submit">Guardar Proyecto</button>
-              </form>
-            </article>
-          </div>
-        </section>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        <!-- Top Header -->
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-6 z-10">
+            <h2 id="page-title" class="text-2xl font-semibold text-gray-800">Dashboard</h2>
+            <div class="flex items-center space-x-4">
+                <button class="text-gray-400 hover:text-brand-600 transition-colors"><i class="fa-solid fa-bell text-xl"></i></button>
+                <div class="h-9 w-9 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold shadow-md cursor-pointer">A</div>
+            </div>
+        </header>
 
-        <!-- Presupuestos -->
-        <section id="module-presupuestos" class="module">
-          <h2>Presupuestos y Ofertas</h2>
-          <article>
-            <h3>Nuevo Presupuesto</h3>
-            <form id="form-presupuestos">
-              <input name="proyecto_id" type="number" placeholder="ID Proyecto" required />
-              <input name="total_materiales" type="number" step="0.01" placeholder="Total Materiales" />
-              <input name="total_mano_obra" type="number" step="0.01" placeholder="Total Mano de Obra" />
-              <input name="total_transporte" type="number" step="0.01" placeholder="Total Transporte" />
-              <input name="margen_porcentaje" type="number" step="0.01" placeholder="Margen (%)" />
-              <button type="submit">Calcular y Guardar Presupuesto</button>
-            </form>
-          </article>
-        </section>
+        <!-- Main Scrollable Area -->
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6 custom-scrollbar" id="main-content">
+            
+            <!-- Dashboard Module -->
+            <section id="module-dashboard" class="module active space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center">
+                        <div class="p-4 rounded-full bg-blue-50 text-blue-500 mr-4"><i class="fa-solid fa-users text-2xl"></i></div>
+                        <div><p class="text-sm text-gray-500 font-medium">Clientes Activos</p><p class="text-2xl font-bold text-gray-800" id="stat-clientes">-</p></div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center">
+                        <div class="p-4 rounded-full bg-emerald-50 text-emerald-500 mr-4"><i class="fa-solid fa-building text-2xl"></i></div>
+                        <div><p class="text-sm text-gray-500 font-medium">Proyectos en Curso</p><p class="text-2xl font-bold text-gray-800" id="stat-proyectos">-</p></div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center">
+                        <div class="p-4 rounded-full bg-amber-50 text-amber-500 mr-4"><i class="fa-solid fa-file-invoice-dollar text-2xl"></i></div>
+                        <div><p class="text-sm text-gray-500 font-medium">Presupuestos</p><p class="text-2xl font-bold text-gray-800" id="stat-presupuestos">-</p></div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 flex items-center">
+                        <div class="p-4 rounded-full bg-purple-50 text-purple-500 mr-4"><i class="fa-solid fa-industry text-2xl"></i></div>
+                        <div><p class="text-sm text-gray-500 font-medium">Órdenes Producción</p><p class="text-2xl font-bold text-gray-800" id="stat-ordenes">-</p></div>
+                    </div>
+                </div>
+            </section>
 
-        <!-- Produccion -->
-        <section id="module-produccion" class="module">
-          <h2>Pedidos y Produccion</h2>
-          <div class="grid">
-            <article>
-              <h3>Nueva Orden de Produccion</h3>
-              <form id="form-ordenes">
-                <input name="proyecto_id" type="number" placeholder="ID Proyecto" required />
-                <input name="presupuesto_id" type="number" placeholder="ID Presupuesto" />
-                <select name="prioridad">
-                  <option value="normal">Normal</option>
-                  <option value="alta">Alta</option>
-                  <option value="urgente">Urgente</option>
-                </select>
-                <button type="submit">Crear Orden</button>
-              </form>
-            </article>
-            <article>
-              <h3>Nueva Tarea</h3>
-              <form id="form-tareas">
-                <input name="orden_id" type="number" placeholder="ID Orden" required />
-                <input name="descripcion" placeholder="Descripcion de la tarea" required />
-                <button type="submit">Guardar Tarea</button>
-              </form>
-            </article>
-          </div>
-        </section>
+            <!-- Clientes Module -->
+            <section id="module-clientes" class="module hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-800">Gestión de Clientes</h3>
+                    <button onclick="openModal('modal-cliente')" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors text-sm font-medium"><i class="fa-solid fa-plus mr-2"></i> Nuevo Cliente</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contacto</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th><th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th></tr>
+                        </thead>
+                        <tbody id="table-clientes" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
 
-        <!-- Almacen -->
-        <section id="module-almacen" class="module">
-          <h2>Materiales y Almacen</h2>
-          <article>
-            <h3>Nuevo Material</h3>
-            <form id="form-materiales">
-              <select name="tipo">
-                <option value="perfil">Perfil</option>
-                <option value="herraje">Herraje</option>
-                <option value="vidrio">Vidrio</option>
-              </select>
-              <input name="referencia" placeholder="Referencia" required />
-              <input name="descripcion" placeholder="Descripcion" />
-              <input name="precio_unitario" type="number" step="0.01" placeholder="Precio Unitario" />
-              <input name="stock_actual" type="number" step="0.01" placeholder="Stock Actual" />
-              <button type="submit">Guardar Material</button>
-            </form>
-          </article>
-        </section>
+                <div class="flex justify-between items-center mt-8">
+                    <h3 class="text-lg font-medium text-gray-800">Gestión de Proyectos</h3>
+                    <button onclick="openModal('modal-proyecto')" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors text-sm font-medium"><i class="fa-solid fa-plus mr-2"></i> Nuevo Proyecto</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proyecto</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente ID</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th><th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th></tr>
+                        </thead>
+                        <tbody id="table-proyectos" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </section>
 
-        <!-- Instalacion -->
-        <section id="module-instalacion" class="module">
-          <h2>Instalacion y Logistica</h2>
-          <article>
-            <h3>Programar Instalacion</h3>
-            <form id="form-instalaciones">
-              <input name="proyecto_id" type="number" placeholder="ID Proyecto" required />
-              <input name="vehiculo" placeholder="Vehiculo asignado" />
-              <input name="notas" placeholder="Notas" />
-              <button type="submit">Programar</button>
-            </form>
-          </article>
-        </section>
+            <!-- Presupuestos Module -->
+            <section id="module-presupuestos" class="module hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-800">Presupuestos y Ofertas</h3>
+                    <button onclick="openModal('modal-presupuesto')" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors text-sm font-medium"><i class="fa-solid fa-plus mr-2"></i> Nuevo Presupuesto</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proyecto ID</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th><th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th></tr>
+                        </thead>
+                        <tbody id="table-presupuestos" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </section>
 
-        <!-- Facturacion -->
-        <section id="module-facturacion" class="module">
-          <h2>Facturacion y Cobros</h2>
-          <article>
-            <h3>Emitir Factura</h3>
-            <form id="form-facturas">
-              <input name="cliente_id" type="number" placeholder="ID Cliente" required />
-              <input name="proyecto_id" type="number" placeholder="ID Proyecto" />
-              <input name="monto" type="number" step="0.01" placeholder="Monto Total" required />
-              <button type="submit">Emitir Factura</button>
-            </form>
-          </article>
-        </section>
+            <!-- Produccion Module -->
+            <section id="module-produccion" class="module hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-800">Órdenes de Producción</h3>
+                    <button onclick="openModal('modal-orden')" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors text-sm font-medium"><i class="fa-solid fa-plus mr-2"></i> Nueva Orden</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proyecto ID</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prioridad</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th><th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th></tr>
+                        </thead>
+                        <tbody id="table-ordenes" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </section>
 
-        <!-- Proveedores -->
-        <section id="module-proveedores" class="module">
-          <h2>Proveedores</h2>
-          <article>
-            <h3>Nuevo Proveedor</h3>
-            <form id="form-proveedores">
-              <input name="nombre" placeholder="Nombre" required />
-              <input name="contacto" placeholder="Contacto" />
-              <input name="telefono" placeholder="Telefono" />
-              <input name="email" placeholder="Email" />
-              <button type="submit">Guardar Proveedor</button>
-            </form>
-          </article>
-        </section>
+            <!-- Almacen Module -->
+            <section id="module-almacen" class="module hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-800">Catálogo de Materiales</h3>
+                    <button onclick="openModal('modal-material')" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors text-sm font-medium"><i class="fa-solid fa-plus mr-2"></i> Nuevo Material</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ref</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th><th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th></tr>
+                        </thead>
+                        <tbody id="table-materiales" class="bg-white divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </section>
 
-        <!-- Incidencias -->
-        <section id="module-incidencias" class="module">
-          <h2>Incidencias</h2>
-          <article>
-            <h3>Reportar Incidencia</h3>
-            <form id="form-incidencias">
-              <input name="proyecto_id" type="number" placeholder="ID Proyecto" required />
-              <input name="descripcion" placeholder="Descripcion de la incidencia" required />
-              <button type="submit">Reportar</button>
-            </form>
-          </article>
-        </section>
+            <!-- Other modules placeholders (Instalacion, Facturacion, Proveedores, Incidencias) -->
+            <section id="module-instalacion" class="module hidden space-y-6"><h3 class="text-lg font-medium text-gray-800">Instalaciones</h3><p class="text-gray-500">Módulo en construcción...</p></section>
+            <section id="module-facturacion" class="module hidden space-y-6"><h3 class="text-lg font-medium text-gray-800">Facturación</h3><p class="text-gray-500">Módulo en construcción...</p></section>
+            <section id="module-proveedores" class="module hidden space-y-6"><h3 class="text-lg font-medium text-gray-800">Proveedores</h3><p class="text-gray-500">Módulo en construcción...</p></section>
+            <section id="module-incidencias" class="module hidden space-y-6"><h3 class="text-lg font-medium text-gray-800">Incidencias</h3><p class="text-gray-500">Módulo en construcción...</p></section>
 
-      </main>
+        </main>
     </div>
+
+    <!-- Modals (Hidden by default) -->
+    <div id="modal-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-40 transition-opacity"></div>
+
+    <!-- Modal: Nuevo Cliente -->
+    <div id="modal-cliente" class="modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl z-50 w-full max-w-md hidden">
+        <div class="flex justify-between items-center p-5 border-b border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800">Nuevo Cliente</h3>
+            <button onclick="closeModal('modal-cliente')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="form-clientes" class="p-5 space-y-4">
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Nombre</label><input name="nombre" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label><input name="telefono" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Email</label><input name="email" type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"></div>
+            </div>
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                <select name="clasificacion" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                    <option value="particular">Particular</option><option value="promotor">Promotor</option><option value="constructor">Constructor</option>
+                </select>
+            </div>
+            <div class="pt-4 flex justify-end space-x-3">
+                <button type="button" onclick="closeModal('modal-cliente')" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">Cancelar</button>
+                <button type="submit" class="px-4 py-2 text-white bg-brand-600 hover:bg-brand-700 rounded-lg font-medium transition-colors">Guardar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal: Nuevo Proyecto -->
+    <div id="modal-proyecto" class="modal fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl z-50 w-full max-w-md hidden">
+        <div class="flex justify-between items-center p-5 border-b border-gray-100">
+            <h3 class="text-lg font-semibold text-gray-800">Nuevo Proyecto</h3>
+            <button onclick="closeModal('modal-proyecto')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="form-proyectos" class="p-5 space-y-4">
+            <div><label class="block text-sm font-medium text-gray-700 mb-1">Nombre del Proyecto</label><input name="nombre" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"></div>
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Cliente ID</label><input name="cliente_id" type="number" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none"></div>
+                <div><label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                    <select name="tipo" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none">
+                        <option value="carpinteria">Carpintería</option><option value="alumineria">Aluminería</option>
+                    </select>
+                </div>
+            </div>
+            <div class="pt-4 flex justify-end space-x-3">
+                <button type="button" onclick="closeModal('modal-proyecto')" class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium transition-colors">Cancelar</button>
+                <button type="submit" class="px-4 py-2 text-white bg-brand-600 hover:bg-brand-700 rounded-lg font-medium transition-colors">Guardar</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center">
+        <i class="fa-solid fa-circle-check text-emerald-400 mr-3"></i>
+        <span id="toast-msg">Acción completada</span>
+    </div>
+
     <script src="/static/app.js"></script>
-  </body>
+</body>
 </html>

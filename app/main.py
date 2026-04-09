@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from . import models, schemas
 from .database import Base, engine, get_db
@@ -24,6 +25,21 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/api/dashboard/stats")
+def get_dashboard_stats(db: Session = Depends(get_db)):
+    clientes = db.query(func.count(models.Cliente.id)).scalar()
+    proyectos = db.query(func.count(models.Proyecto.id)).scalar()
+    presupuestos = db.query(func.count(models.Presupuesto.id)).scalar()
+    ordenes = db.query(func.count(models.OrdenProduccion.id)).scalar()
+    
+    return {
+        "clientes": clientes,
+        "proyectos": proyectos,
+        "presupuestos": presupuestos,
+        "ordenes": ordenes
+    }
+
+
 # --- Clientes ---
 @app.post("/api/clientes", response_model=schemas.ClienteOut)
 def crear_cliente(item: schemas.ClienteCreate, db: Session = Depends(get_db)):
@@ -36,6 +52,14 @@ def crear_cliente(item: schemas.ClienteCreate, db: Session = Depends(get_db)):
 @app.get("/api/clientes", response_model=list[schemas.ClienteOut])
 def listar_clientes(db: Session = Depends(get_db)):
     return db.query(models.Cliente).order_by(models.Cliente.id.desc()).all()
+
+@app.delete("/api/clientes/{cliente_id}")
+def eliminar_cliente(cliente_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.Cliente).filter(models.Cliente.id == cliente_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
 
 
 # --- Proveedores ---
@@ -51,6 +75,14 @@ def crear_proveedor(item: schemas.ProveedorCreate, db: Session = Depends(get_db)
 def listar_proveedores(db: Session = Depends(get_db)):
     return db.query(models.Proveedor).order_by(models.Proveedor.id.desc()).all()
 
+@app.delete("/api/proveedores/{proveedor_id}")
+def eliminar_proveedor(proveedor_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.Proveedor).filter(models.Proveedor.id == proveedor_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
+
 
 # --- Materiales ---
 @app.post("/api/materiales", response_model=schemas.MaterialOut)
@@ -64,6 +96,14 @@ def crear_material(item: schemas.MaterialCreate, db: Session = Depends(get_db)):
 @app.get("/api/materiales", response_model=list[schemas.MaterialOut])
 def listar_materiales(db: Session = Depends(get_db)):
     return db.query(models.Material).order_by(models.Material.id.desc()).all()
+
+@app.delete("/api/materiales/{material_id}")
+def eliminar_material(material_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.Material).filter(models.Material.id == material_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
 
 
 # --- Proyectos ---
@@ -80,6 +120,14 @@ def crear_proyecto(item: schemas.ProyectoCreate, db: Session = Depends(get_db)):
 @app.get("/api/proyectos", response_model=list[schemas.ProyectoOut])
 def listar_proyectos(db: Session = Depends(get_db)):
     return db.query(models.Proyecto).order_by(models.Proyecto.id.desc()).all()
+
+@app.delete("/api/proyectos/{proyecto_id}")
+def eliminar_proyecto(proyecto_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.Proyecto).filter(models.Proyecto.id == proyecto_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
 
 
 # --- Presupuestos ---
@@ -126,6 +174,14 @@ def crear_presupuesto(item: schemas.PresupuestoCreate, db: Session = Depends(get
 def listar_presupuestos(db: Session = Depends(get_db)):
     return db.query(models.Presupuesto).order_by(models.Presupuesto.id.desc()).all()
 
+@app.delete("/api/presupuestos/{presupuesto_id}")
+def eliminar_presupuesto(presupuesto_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.Presupuesto).filter(models.Presupuesto.id == presupuesto_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
+
 
 # --- Empleados ---
 @app.post("/api/empleados", response_model=schemas.EmpleadoOut)
@@ -139,6 +195,14 @@ def crear_empleado(item: schemas.EmpleadoCreate, db: Session = Depends(get_db)):
 @app.get("/api/empleados", response_model=list[schemas.EmpleadoOut])
 def listar_empleados(db: Session = Depends(get_db)):
     return db.query(models.Empleado).order_by(models.Empleado.id.desc()).all()
+
+@app.delete("/api/empleados/{empleado_id}")
+def eliminar_empleado(empleado_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.Empleado).filter(models.Empleado.id == empleado_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
 
 
 # --- Ordenes Produccion ---
@@ -154,6 +218,14 @@ def crear_orden(item: schemas.OrdenProduccionCreate, db: Session = Depends(get_d
 def listar_ordenes(db: Session = Depends(get_db)):
     return db.query(models.OrdenProduccion).order_by(models.OrdenProduccion.id.desc()).all()
 
+@app.delete("/api/ordenes/{orden_id}")
+def eliminar_orden(orden_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.OrdenProduccion).filter(models.OrdenProduccion.id == orden_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
+
 
 # --- Tareas Produccion ---
 @app.post("/api/tareas", response_model=schemas.TareaProduccionOut)
@@ -167,6 +239,14 @@ def crear_tarea(item: schemas.TareaProduccionCreate, db: Session = Depends(get_d
 @app.get("/api/tareas", response_model=list[schemas.TareaProduccionOut])
 def listar_tareas(db: Session = Depends(get_db)):
     return db.query(models.TareaProduccion).order_by(models.TareaProduccion.id.desc()).all()
+
+@app.delete("/api/tareas/{tarea_id}")
+def eliminar_tarea(tarea_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.TareaProduccion).filter(models.TareaProduccion.id == tarea_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
 
 
 # --- Instalaciones ---
@@ -182,6 +262,14 @@ def crear_instalacion(item: schemas.InstalacionCreate, db: Session = Depends(get
 def listar_instalaciones(db: Session = Depends(get_db)):
     return db.query(models.Instalacion).order_by(models.Instalacion.id.desc()).all()
 
+@app.delete("/api/instalaciones/{instalacion_id}")
+def eliminar_instalacion(instalacion_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.Instalacion).filter(models.Instalacion.id == instalacion_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
+
 
 # --- Facturas ---
 @app.post("/api/facturas", response_model=schemas.FacturaOut)
@@ -196,6 +284,14 @@ def crear_factura(item: schemas.FacturaCreate, db: Session = Depends(get_db)):
 def listar_facturas(db: Session = Depends(get_db)):
     return db.query(models.Factura).order_by(models.Factura.id.desc()).all()
 
+@app.delete("/api/facturas/{factura_id}")
+def eliminar_factura(factura_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.Factura).filter(models.Factura.id == factura_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
+
 
 # --- Incidencias ---
 @app.post("/api/incidencias", response_model=schemas.IncidenciaOut)
@@ -209,3 +305,11 @@ def crear_incidencia(item: schemas.IncidenciaCreate, db: Session = Depends(get_d
 @app.get("/api/incidencias", response_model=list[schemas.IncidenciaOut])
 def listar_incidencias(db: Session = Depends(get_db)):
     return db.query(models.Incidencia).order_by(models.Incidencia.id.desc()).all()
+
+@app.delete("/api/incidencias/{incidencia_id}")
+def eliminar_incidencia(incidencia_id: int, db: Session = Depends(get_db)):
+    obj = db.query(models.Incidencia).filter(models.Incidencia.id == incidencia_id).first()
+    if not obj: raise HTTPException(status_code=404, detail="No encontrado")
+    db.delete(obj)
+    db.commit()
+    return {"status": "eliminado"}
