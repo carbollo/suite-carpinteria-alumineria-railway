@@ -184,3 +184,15 @@ class Incidencia(Base):
     resolucion = Column(Text, nullable=True)
 
     proyecto = relationship("Proyecto", back_populates="incidencias")
+
+
+class Empresa(Base):
+    __tablename__ = "empresa"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(120), default="Mi Empresa")
+    nif = Column(String(50), nullable=True)
+    direccion = Column(String(200), nullable=True)
+    telefono = Column(String(50), nullable=True)
+    email = Column(String(120), nullable=True)
+    sitio_web = Column(String(120), nullable=True)

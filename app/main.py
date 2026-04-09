@@ -85,6 +85,30 @@ def get_dashboard_stats(db: Session = Depends(get_db)):
         "ordenes": ordenes
     }
 
+# --- Empresa ---
+@api_router.get("/empresa", response_model=schemas.EmpresaOut)
+def obtener_empresa(db: Session = Depends(get_db)):
+    empresa = db.query(models.Empresa).first()
+    if not empresa:
+        empresa = models.Empresa(nombre="TallerPro")
+        db.add(empresa)
+        db.commit()
+        db.refresh(empresa)
+    return empresa
+
+@api_router.post("/empresa", response_model=schemas.EmpresaOut)
+def actualizar_empresa(item: schemas.EmpresaCreate, db: Session = Depends(get_db)):
+    empresa = db.query(models.Empresa).first()
+    if not empresa:
+        empresa = models.Empresa(**item.model_dump())
+        db.add(empresa)
+    else:
+        for key, value in item.model_dump().items():
+            setattr(empresa, key, value)
+    db.commit()
+    db.refresh(empresa)
+    return empresa
+
 # --- Clientes ---
 @api_router.post("/clientes", response_model=schemas.ClienteOut)
 def crear_cliente(item: schemas.ClienteCreate, db: Session = Depends(get_db)):
@@ -230,13 +254,24 @@ def generar_pdf_presupuesto(presupuesto_id: int, db: Session = Depends(get_db)):
     
     proyecto = presupuesto.proyecto
     cliente = proyecto.cliente
+    empresa = db.query(models.Empresa).first()
+    nombre_empresa = empresa.nombre if empresa else "TallerPro"
 
     pdf = FPDF()
     pdf.add_page()
     
     # Header
     pdf.set_font("helvetica", "B", 20)
-    pdf.cell(0, 10, f"TallerPro - Presupuesto #{presupuesto.id}", ln=True, align="C")
+    pdf.cell(0, 10, f"{nombre_empresa} - Presupuesto #{presupuesto.id}", ln=True, align="C")
+    pdf.ln(5)
+    
+    if empresa:
+        pdf.set_font("helvetica", "", 10)
+        if empresa.nif: pdf.cell(0, 5, f"NIF: {empresa.nif}", ln=True, align="C")
+        if empresa.direccion: pdf.cell(0, 5, f"{empresa.direccion}", ln=True, align="C")
+        if empresa.telefono or empresa.email: 
+            contacto = " | ".join(filter(None, [empresa.telefono or "", empresa.email or ""]))
+            pdf.cell(0, 5, contacto, ln=True, align="C")
     pdf.ln(10)
     
     # Info Cliente

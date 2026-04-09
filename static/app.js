@@ -150,6 +150,26 @@ function renderTable(id, rows, columns) {
     });
 }
 
+// Cargar datos de la empresa
+async function loadEmpresa() {
+    try {
+        const empresa = await api("/api/empresa");
+        document.getElementById("ui-company-name").textContent = empresa.nombre || "TallerPro";
+        
+        const form = document.getElementById("form-empresa");
+        if(form) {
+            form.elements["nombre"].value = empresa.nombre || "";
+            form.elements["nif"].value = empresa.nif || "";
+            form.elements["direccion"].value = empresa.direccion || "";
+            form.elements["telefono"].value = empresa.telefono || "";
+            form.elements["email"].value = empresa.email || "";
+            form.elements["sitio_web"].value = empresa.sitio_web || "";
+        }
+    } catch (e) {
+        console.error("Error cargando empresa", e);
+    }
+}
+
 // Cargar datos para los selects (dropdowns)
 async function loadDropdowns() {
     try {
@@ -252,9 +272,24 @@ document.addEventListener("DOMContentLoaded", () => {
     wireForm("form-ordenes", "/api/ordenes", "modal-orden");
     wireForm("form-materiales", "/api/materiales", "modal-material");
 
+    const formEmpresa = document.getElementById("form-empresa");
+    if(formEmpresa) {
+        formEmpresa.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            try {
+                await api("/api/empresa", { method: "POST", body: JSON.stringify(getFormData(formEmpresa)) });
+                showToast("Datos de la empresa actualizados");
+                loadEmpresa();
+            } catch (err) {
+                showToast(err.message, true);
+            }
+        });
+    }
+
     // Inicializar menú
     const firstNav = document.querySelector(".nav-link");
     if(firstNav) firstNav.classList.add("border-l-4", "border-brand-500");
     
+    loadEmpresa();
     refreshData();
 });

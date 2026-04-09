@@ -231,3 +231,22 @@ class IncidenciaOut(IncidenciaBase):
 
     class Config:
         from_attributes = True
+
+
+# --- Empresa ---
+class EmpresaBase(BaseModel):
+    nombre: str
+    nif: Optional[str] = None
+    direccion: Optional[str] = None
+    telefono: Optional[str] = None
+    email: Optional[str] = None
+    sitio_web: Optional[str] = None
+
+class EmpresaCreate(EmpresaBase):
+    pass
+
+class EmpresaOut(EmpresaBase):
+    id: int
+
+    class Config:
+        from_attributes = True
