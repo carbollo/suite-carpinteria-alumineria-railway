@@ -135,7 +135,13 @@ function renderTable(id, rows, columns) {
         });
         
         // Columna de acciones
+        let extraActions = "";
+        if (columns[0].endpoint === "/api/presupuestos") {
+            extraActions = `<a href="/api/presupuestos/${row.id}/pdf" target="_blank" class="text-blue-500 hover:text-blue-700 transition-colors mr-3" title="Descargar PDF"><i class="fa-solid fa-file-pdf"></i></a>`;
+        }
+        
         html += `<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            ${extraActions}
             <button onclick="deleteRecord('${columns[0].endpoint}', ${row.id})" class="text-red-500 hover:text-red-700 transition-colors" title="Eliminar"><i class="fa-solid fa-trash"></i></button>
         </td>`;
         

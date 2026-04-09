@@ -1,11 +1,12 @@
 import os
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Form, status
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Form, status, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from fpdf import FPDF
 
 from . import models, schemas
 from .database import Base, engine, get_db
@@ -220,6 +221,74 @@ def eliminar_presupuesto(presupuesto_id: int, db: Session = Depends(get_db)):
     db.delete(obj)
     db.commit()
     return {"status": "eliminado"}
+
+@api_router.get("/presupuestos/{presupuesto_id}/pdf")
+def generar_pdf_presupuesto(presupuesto_id: int, db: Session = Depends(get_db)):
+    presupuesto = db.query(models.Presupuesto).filter(models.Presupuesto.id == presupuesto_id).first()
+    if not presupuesto:
+        raise HTTPException(status_code=404, detail="Presupuesto no encontrado")
+    
+    proyecto = presupuesto.proyecto
+    cliente = proyecto.cliente
+
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Header
+    pdf.set_font("helvetica", "B", 20)
+    pdf.cell(0, 10, f"TallerPro - Presupuesto #{presupuesto.id}", ln=True, align="C")
+    pdf.ln(10)
+    
+    # Info Cliente
+    pdf.set_font("helvetica", "B", 12)
+    pdf.cell(0, 8, "Datos del Cliente:", ln=True)
+    pdf.set_font("helvetica", "", 12)
+    pdf.cell(0, 8, f"Nombre: {cliente.nombre}", ln=True)
+    pdf.cell(0, 8, f"Telefono: {cliente.telefono or 'N/A'}", ln=True)
+    pdf.cell(0, 8, f"Email: {cliente.email or 'N/A'}", ln=True)
+    pdf.ln(5)
+    
+    # Info Proyecto
+    pdf.set_font("helvetica", "B", 12)
+    pdf.cell(0, 8, "Datos del Proyecto:", ln=True)
+    pdf.set_font("helvetica", "", 12)
+    pdf.cell(0, 8, f"Proyecto: {proyecto.nombre} (#{proyecto.id})", ln=True)
+    pdf.cell(0, 8, f"Tipo: {proyecto.tipo.capitalize()}", ln=True)
+    pdf.ln(10)
+    
+    # Desglose
+    pdf.set_font("helvetica", "B", 14)
+    pdf.cell(0, 10, "Desglose Economico:", ln=True)
+    pdf.set_font("helvetica", "", 12)
+    
+    pdf.cell(100, 10, "Materiales", border=1)
+    pdf.cell(50, 10, f"${presupuesto.total_materiales:.2f}", border=1, ln=True, align="R")
+    pdf.cell(100, 10, "Mano de Obra", border=1)
+    pdf.cell(50, 10, f"${presupuesto.total_mano_obra:.2f}", border=1, ln=True, align="R")
+    pdf.cell(100, 10, "Transporte", border=1)
+    pdf.cell(50, 10, f"${presupuesto.total_transporte:.2f}", border=1, ln=True, align="R")
+    
+    subtotal = presupuesto.total_materiales + presupuesto.total_mano_obra + presupuesto.total_transporte
+    pdf.cell(100, 10, "Subtotal", border=1)
+    pdf.cell(50, 10, f"${subtotal:.2f}", border=1, ln=True, align="R")
+    
+    pdf.cell(100, 10, f"Margen ({presupuesto.margen_porcentaje}%)", border=1)
+    margen_val = subtotal * (presupuesto.margen_porcentaje / 100)
+    pdf.cell(50, 10, f"${margen_val:.2f}", border=1, ln=True, align="R")
+    
+    pdf.set_font("helvetica", "B", 12)
+    pdf.cell(100, 10, "TOTAL FINAL", border=1)
+    pdf.cell(50, 10, f"${presupuesto.total_final:.2f}", border=1, ln=True, align="R")
+    
+    pdf.ln(20)
+    pdf.set_font("helvetica", "I", 10)
+    pdf.cell(0, 10, "Documento generado automaticamente por TallerPro.", ln=True, align="C")
+
+    pdf_bytes = pdf.output()
+    
+    return Response(content=pdf_bytes, media_type="application/pdf", headers={
+        "Content-Disposition": f"attachment; filename=presupuesto_{presupuesto_id}.pdf"
+    })
 
 # --- Empleados ---
 @api_router.post("/empleados", response_model=schemas.EmpleadoOut)
