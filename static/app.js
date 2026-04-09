@@ -207,7 +207,7 @@ async function refreshData() {
         if(document.getElementById("module-clientes").classList.contains("active")) {
             const [clientes, proyectos] = await Promise.all([api("/api/clientes"), api("/api/proyectos")]);
             renderTable("table-clientes", clientes, [
-                {key: "id", endpoint: "/api/clientes"}, {key: "nombre"}, {key: "telefono"}, {key: "clasificacion"}
+                {key: "id", endpoint: "/api/clientes"}, {key: "nombre"}, {key: "nif"}, {key: "telefono"}, {key: "clasificacion"}
             ]);
             renderTable("table-proyectos", proyectos, [
                 {key: "id", endpoint: "/api/proyectos"}, {key: "nombre"}, {key: "cliente_id"}, {key: "estado", type: "status"}

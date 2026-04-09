@@ -6,9 +6,11 @@ from typing import List, Optional
 # --- Cliente ---
 class ClienteBase(BaseModel):
     nombre: str
+    nif: Optional[str] = None
     telefono: Optional[str] = None
     email: Optional[str] = None
     direccion: Optional[str] = None
+    sitio_web: Optional[str] = None
     clasificacion: str = "particular"
     portal_acceso: bool = False
 

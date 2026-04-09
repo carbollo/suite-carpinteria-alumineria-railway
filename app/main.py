@@ -279,6 +279,10 @@ def generar_pdf_presupuesto(presupuesto_id: int, db: Session = Depends(get_db)):
     pdf.cell(0, 8, "Datos del Cliente:", ln=True)
     pdf.set_font("helvetica", "", 12)
     pdf.cell(0, 8, f"Nombre: {cliente.nombre}", ln=True)
+    if cliente.nif:
+        pdf.cell(0, 8, f"NIF/CIF: {cliente.nif}", ln=True)
+    if cliente.direccion:
+        pdf.cell(0, 8, f"Direccion: {cliente.direccion}", ln=True)
     pdf.cell(0, 8, f"Telefono: {cliente.telefono or 'N/A'}", ln=True)
     pdf.cell(0, 8, f"Email: {cliente.email or 'N/A'}", ln=True)
     pdf.ln(5)

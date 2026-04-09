@@ -9,9 +9,11 @@ class Cliente(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String(120), nullable=False)
+    nif = Column(String(50), nullable=True)
     telefono = Column(String(50), nullable=True)
     email = Column(String(120), nullable=True)
     direccion = Column(String(180), nullable=True)
+    sitio_web = Column(String(120), nullable=True)
     clasificacion = Column(String(50), default="particular")  # particular, promotor, constructor, administracion
     portal_acceso = Column(Boolean, default=False)
     
