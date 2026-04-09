@@ -144,6 +144,27 @@ function renderTable(id, rows, columns) {
     });
 }
 
+// Cargar datos para los selects (dropdowns)
+async function loadDropdowns() {
+    try {
+        const clientes = await api("/api/clientes");
+        const selectClientes = document.querySelectorAll("select[name='cliente_id']");
+        selectClientes.forEach(select => {
+            select.innerHTML = '<option value="" disabled selected>Seleccione un cliente...</option>' + 
+                clientes.map(c => `<option value="${c.id}">#${c.id} - ${c.nombre}</option>`).join('');
+        });
+
+        const proyectos = await api("/api/proyectos");
+        const selectProyectos = document.querySelectorAll("select[name='proyecto_id']");
+        selectProyectos.forEach(select => {
+            select.innerHTML = '<option value="" disabled selected>Seleccione un proyecto...</option>' + 
+                proyectos.map(p => `<option value="${p.id}">#${p.id} - ${p.nombre}</option>`).join('');
+        });
+    } catch (e) {
+        console.error("Error cargando dropdowns", e);
+    }
+}
+
 // Refrescar Datos
 async function refreshData() {
     try {
@@ -190,6 +211,9 @@ async function refreshData() {
                 {key: "referencia", endpoint: "/api/materiales"}, {key: "tipo"}, {key: "stock_actual"}, {key: "precio_unitario", type: "currency"}
             ]);
         }
+        
+        // Actualizar dropdowns
+        await loadDropdowns();
 
     } catch (e) {
         console.error("Error al cargar datos:", e);
