@@ -1,0 +1,52 @@
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f4f6f8;
+  color: #1e293b;
+}
+
+main {
+  max-width: 1000px;
+  margin: 1.5rem auto;
+  padding: 1rem;
+}
+
+section,
+article {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+input,
+select,
+button {
+  padding: 0.55rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+}
+
+button {
+  background: #0f766e;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+ul {
+  margin: 0;
+  padding-left: 1rem;
+}

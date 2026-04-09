@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suite Taller - Carpinteria y Alumineria</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Suite de Gestion - Carpinteria y Alumineria</h1>
+      <p>Clientes, proyectos, presupuestos y tareas en una sola app.</p>
+
+      <section>
+        <h2>Nuevo cliente</h2>
+        <form id="cliente-form">
+          <input name="nombre" placeholder="Nombre" required />
+          <input name="telefono" placeholder="Telefono" />
+          <input name="email" placeholder="Email" />
+          <input name="direccion" placeholder="Direccion" />
+          <button type="submit">Guardar cliente</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Nuevo proyecto</h2>
+        <form id="proyecto-form">
+          <input name="nombre" placeholder="Nombre del proyecto" required />
+          <select name="tipo">
+            <option value="carpinteria">Carpinteria</option>
+            <option value="alumineria">Alumineria</option>
+          </select>
+          <input name="estado" placeholder="Estado (en_proceso, entregado...)" />
+          <input name="descripcion" placeholder="Descripcion" />
+          <input name="cliente_id" type="number" placeholder="ID cliente" required />
+          <button type="submit">Guardar proyecto</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Nuevo presupuesto</h2>
+        <form id="presupuesto-form">
+          <input name="proyecto_id" type="number" placeholder="ID proyecto" required />
+          <input name="material" type="number" step="0.01" placeholder="Material" />
+          <input name="mano_obra" type="number" step="0.01" placeholder="Mano de obra" />
+          <input name="transporte" type="number" step="0.01" placeholder="Transporte" />
+          <input name="margen" type="number" step="0.01" placeholder="Margen (%)" />
+          <button type="submit">Calcular y guardar</button>
+        </form>
+      </section>
+
+      <section>
+        <h2>Nueva tarea</h2>
+        <form id="tarea-form">
+          <input name="proyecto_id" type="number" placeholder="ID proyecto" required />
+          <input name="titulo" placeholder="Titulo de la tarea" required />
+          <input name="estado" placeholder="Estado (pendiente, en_progreso...)" />
+          <input name="responsable" placeholder="Responsable" />
+          <button type="submit">Guardar tarea</button>
+        </form>
+      </section>
+
+      <section class="grid">
+        <article>
+          <h3>Clientes</h3>
+          <ul id="clientes"></ul>
+        </article>
+        <article>
+          <h3>Proyectos</h3>
+          <ul id="proyectos"></ul>
+        </article>
+        <article>
+          <h3>Presupuestos</h3>
+          <ul id="presupuestos"></ul>
+        </article>
+        <article>
+          <h3>Tareas</h3>
+          <ul id="tareas"></ul>
+        </article>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
